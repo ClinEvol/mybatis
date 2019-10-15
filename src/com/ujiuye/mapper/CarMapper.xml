@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ujiuye.mapper.CarMapper">
+
+    <resultMap id="baseResultMap" type="Car">
+        <id property="cid" column="cid" />
+        <result property="cname" column="cname" />
+        <result property="pid" column="pid"></result>
+    </resultMap>
+
+    <select id="getByPid" resultMap="baseResultMap" parameterType="int">
+        SELECT * FROM car WHERE pid=#{pid}
+    </select>
+
+</mapper>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ujiuye.mapper.StudentMapper">
+
+    <resultMap id="baseResultMap" type="Student">
+        <id property="sid" column="sid" />
+        <result property="sname" column="sname" />
+        <collection property="studentCourses" column="sid" ofType="StudentCourse" select="com.ujiuye.mapper.StudentCourseMapper.listBySid"/>
+    </resultMap>
+
+    <select id="list" resultMap="baseResultMap">
+        SELECT * FROM student
+    </select>
+
+</mapper>

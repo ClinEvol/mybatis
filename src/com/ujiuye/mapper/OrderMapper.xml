@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间  一个mapper文件有一个命名空间，用于标识不同的mapper文件
+名称规则：接口所在包名+接口名   接口的完全限定名
+-->
+<mapper namespace="com.ujiuye.mapper.OrderMapper">
+
+    <resultMap id="baseResultMap" type="Order">
+        <id column="oid" property="oid" />
+        <result column="oname" property="oname" />
+        <result column="pid" property="pid" />
+    </resultMap>
+
+    <select id="getOrderByPid" resultMap="baseResultMap" parameterType="int">
+        SELECT * FROM `order` WHERE `pid`=#{pid}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间  一个mapper文件有一个命名空间，用于标识不同的mapper文件
+名称规则：接口所在包名+接口名   接口的完全限定名
+-->
+<mapper namespace="com.ujiuye.mapper.PersonMapper">
+    <cache />
+<!--
+默认映射
+实体类的属与表中的字段名称要一致，否则该匹配不上值
+
+resultMap
+当实体类的属与表中的字段名称不一致时：使用resultMap解决
+id:自定义的
+type：要映射的类型  Person
+
+<id>是用于主键的字段映射
+<result>是用于非主键字段的映射
+-->
+    <resultMap id="baseResultMap" type="Person">
+        <id column="Id" property="id" />
+        <result column="Name" property="name" />
+        <result column="Bir" property="birthday" />
+        <result column="Address" property="address" />
+        <!--   association专门做一对一的
+        javaType：是指property的类型
+             -->
+<!--        <association property="car" javaType="Car">-->
+<!--            <id property="cid" column="cid" />-->
+<!--            <result property="cname" column="cname" />-->
+<!--            <result property="pid" column="pid"></result>-->
+<!--        </association>-->
+<!--        <association property="car" javaType="Car" resultMap="com.ujiuye.mapper.CarMapper.baseResultMap"></association>-->
+        <association property="car" javaType="Car" column="id" select="com.ujiuye.mapper.CarMapper.getByPid"/>
+
+        <collection property="orders" ofType="Order" column="id" select="com.ujiuye.mapper.OrderMapper.getOrderByPid" />
+    </resultMap>
+    <!--执行单元，
+    id与接口方法名一致
+    resultType:返回值类型-->
+     <select id="list" resultMap="baseResultMap">
+         SELECT * FROM person
+     </select>
+
+    <!--
+    在一个mapper,不管在什么位置，只要有一个错，整个mapper无法运行
+
+    parameterType：参数类型
+    读取参数 #{形参名称}
+    接口返回类型为单个对象，请确保该执行单只有一个返回对象
+      -->
+    <select id="getById" resultType="Person" parameterType="int">
+        SELECT * FROM `person` WHERE `id`=#{id}
+    </select>
+
+    <select id="getByParam" resultType="Person">
+        SELECT * FROM person
+        <where>
+           <if test="name!=null">
+               AND `Name`=#{name}
+           </if>
+           <if test="address!=null">
+               AND `Address`=#{address}
+           </if>
+        </where>
+    </select>
+
+    <!--  #{key} -->
+    <select id="getByMap" resultType="Person" >
+        SELECT * FROM person
+         <where>
+             <choose>
+                 <when test="name!=null">
+                     AND `Name`=#{name}
+                 </when>
+                 <when test="address!=null">
+                     AND `Address`=#{address}
+                 </when>
+             </choose>
+         </where>
+    </select>
+
+    <select id="getByIndex" resultType="Person">
+        SELECT * FROM person WHERE `Name`=#{arg0} AND `Address`=#{arg1}
+    </select>
+
+    <select id="count" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM `person`
+    </select>
+
+    <!--insert update delete     受影响行数  int  默认行是int,所以不需要指定
+    读取参person中的属性  #{属性名称}
+    -->
+    <insert id="save" parameterType="com.ujiuye.pojo.Person"  >
+        <selectKey keyColumn="Id" keyProperty="id" order="AFTER" resultType="int" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+
+        INSERT INTO `person`(`Id`, `Name`, `Bir`, `Address`)
+        VALUES (#{id},#{name},#{birthday},#{address});
+    </insert>
+    <insert id="saveByList" parameterType="Person">
+        INSERT INTO `person`(`Id`, `Name`, `Bir`, `Address`)
+        VALUES
+        <foreach collection="list" item="person" separator=",">
+            (#{person.id},#{person.name},#{person.birthday},#{person.address})
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.ujiuye.pojo.Person">
+        UPDATE `person`
+        <set>
+
+            <if test="name!=null ">
+                `Name` = #{name},
+            </if>
+            <if test="birthday!=null">
+                `Bir` = #{birthday},
+            </if>
+            <if test="address!=null">
+                `Address` = #{address},
+            </if>
+
+        </set>
+        WHERE `Id` = #{id};
+    </update>
+
+
+    <delete id="removeById" parameterType="int">
+        DELETE FROM `person` WHERE `id`=#{id}
+    </delete>
+
+
+    <delete id="removeByList">
+        DELETE FROM `person` WHERE id IN
+        <foreach collection="list" item="number" open="(" close=")" separator=",">
+            #{number}
+        </foreach>
+
+    </delete>
+
+
+</mapper>
